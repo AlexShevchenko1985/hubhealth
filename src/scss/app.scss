@@ -1,0 +1,14 @@
+@use "base/colours" as *;
+@use "base/fonts" as *;
+@use "base/media" as *;
+@use "base/reset" as *;
+@use "base/typorgaphy" as *;
+
+
+@use "components/common";
+@use "components/footer";
+@use "components/header";
+@use "components/popup";
+@use "components/slider";
+
+@use "pages/not-found";

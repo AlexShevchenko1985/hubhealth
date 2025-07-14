@@ -1,0 +1,16 @@
+{
+  "devDependencies": {
+    "@wordpress/scripts": "^30.11.0",
+    "css-loader": "^7.1.2",
+    "mini-css-extract-plugin": "^2.9.2",
+    "style-loader": "^4.0.0"
+  },
+  "scripts": {
+    "build": "wp-scripts build",
+    "watch": "wp-scripts start"
+  },
+  "dependencies": {
+    "aos": "^2.3.4",
+    "swiper": "^11.2.4"
+  }
+}
