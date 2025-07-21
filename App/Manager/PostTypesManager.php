@@ -2,9 +2,8 @@
 namespace App\Manager;
 
 use App\Base\AbstractManager;
-use App\CustomPostTypes\Career;
-use App\CustomPostTypes\Review;
-use App\CustomPostTypes\Team;
+use App\CustomPostTypes\Treatment;
+
 
 class PostTypesManager extends AbstractManager
 {
@@ -15,9 +14,7 @@ class PostTypesManager extends AbstractManager
 	public function execute(): void
 	{
 		$this->items = [
-//			Team::class,
-//            Career::class,
-//            Review::class,
+            Treatment::class,
 		];
 
 		add_action('init', [$this, 'register']);

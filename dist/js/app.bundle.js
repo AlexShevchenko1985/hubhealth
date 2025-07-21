@@ -355,9 +355,94 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/**
 /*!*****************************************************!*\
   !*** ./node_modules/css-loader/dist/runtime/api.js ***!
   \*****************************************************/
-/***/ (() => {
+/***/ ((module) => {
 
-throw new Error("Module build failed: Error: ENOENT: no such file or directory, open '/Users/oleksandrshevchenko/Development/hubhealth/wp-content/themes/hubhealth/node_modules/css-loader/dist/runtime/api.js'");
+"use strict";
+
+
+/*
+  MIT License http://www.opensource.org/licenses/mit-license.php
+  Author Tobias Koppers @sokra
+*/
+module.exports = function (cssWithMappingToString) {
+  var list = [];
+
+  // return the list of modules as css string
+  list.toString = function toString() {
+    return this.map(function (item) {
+      var content = "";
+      var needLayer = typeof item[5] !== "undefined";
+      if (item[4]) {
+        content += "@supports (".concat(item[4], ") {");
+      }
+      if (item[2]) {
+        content += "@media ".concat(item[2], " {");
+      }
+      if (needLayer) {
+        content += "@layer".concat(item[5].length > 0 ? " ".concat(item[5]) : "", " {");
+      }
+      content += cssWithMappingToString(item);
+      if (needLayer) {
+        content += "}";
+      }
+      if (item[2]) {
+        content += "}";
+      }
+      if (item[4]) {
+        content += "}";
+      }
+      return content;
+    }).join("");
+  };
+
+  // import a list of modules into the list
+  list.i = function i(modules, media, dedupe, supports, layer) {
+    if (typeof modules === "string") {
+      modules = [[null, modules, undefined]];
+    }
+    var alreadyImportedModules = {};
+    if (dedupe) {
+      for (var k = 0; k < this.length; k++) {
+        var id = this[k][0];
+        if (id != null) {
+          alreadyImportedModules[id] = true;
+        }
+      }
+    }
+    for (var _k = 0; _k < modules.length; _k++) {
+      var item = [].concat(modules[_k]);
+      if (dedupe && alreadyImportedModules[item[0]]) {
+        continue;
+      }
+      if (typeof layer !== "undefined") {
+        if (typeof item[5] === "undefined") {
+          item[5] = layer;
+        } else {
+          item[1] = "@layer".concat(item[5].length > 0 ? " ".concat(item[5]) : "", " {").concat(item[1], "}");
+          item[5] = layer;
+        }
+      }
+      if (media) {
+        if (!item[2]) {
+          item[2] = media;
+        } else {
+          item[1] = "@media ".concat(item[2], " {").concat(item[1], "}");
+          item[2] = media;
+        }
+      }
+      if (supports) {
+        if (!item[4]) {
+          item[4] = "".concat(supports);
+        } else {
+          item[1] = "@supports (".concat(item[4], ") {").concat(item[1], "}");
+          item[4] = supports;
+        }
+      }
+      list.push(item);
+    }
+  };
+  return list;
+};
 
 /***/ }),
 
@@ -365,9 +450,35 @@ throw new Error("Module build failed: Error: ENOENT: no such file or directory, 
 /*!********************************************************!*\
   !*** ./node_modules/css-loader/dist/runtime/getUrl.js ***!
   \********************************************************/
-/***/ (() => {
+/***/ ((module) => {
 
-throw new Error("Module build failed: Error: ENOENT: no such file or directory, open '/Users/oleksandrshevchenko/Development/hubhealth/wp-content/themes/hubhealth/node_modules/css-loader/dist/runtime/getUrl.js'");
+"use strict";
+
+
+module.exports = function (url, options) {
+  if (!options) {
+    options = {};
+  }
+  if (!url) {
+    return url;
+  }
+  url = String(url.__esModule ? url.default : url);
+
+  // If url is already wrapped in quotes, remove them
+  if (/^['"].*['"]$/.test(url)) {
+    url = url.slice(1, -1);
+  }
+  if (options.hash) {
+    url += options.hash;
+  }
+
+  // Should url be wrapped?
+  // See https://drafts.csswg.org/css-values-3/#urls
+  if (/["'() \t\n]|(%20)/.test(url) || options.needQuotes) {
+    return "\"".concat(url.replace(/"/g, '\\"').replace(/\n/g, "\\n"), "\"");
+  }
+  return url;
+};
 
 /***/ }),
 
@@ -375,9 +486,25 @@ throw new Error("Module build failed: Error: ENOENT: no such file or directory, 
 /*!************************************************************!*\
   !*** ./node_modules/css-loader/dist/runtime/sourceMaps.js ***!
   \************************************************************/
-/***/ (() => {
+/***/ ((module) => {
 
-throw new Error("Module build failed: Error: ENOENT: no such file or directory, open '/Users/oleksandrshevchenko/Development/hubhealth/wp-content/themes/hubhealth/node_modules/css-loader/dist/runtime/sourceMaps.js'");
+"use strict";
+
+
+module.exports = function (item) {
+  var content = item[1];
+  var cssMapping = item[3];
+  if (!cssMapping) {
+    return content;
+  }
+  if (typeof btoa === "function") {
+    var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(cssMapping))));
+    var data = "sourceMappingURL=data:application/json;charset=utf-8;base64,".concat(base64);
+    var sourceMapping = "/*# ".concat(data, " */");
+    return [content].concat([sourceMapping]).join("\n");
+  }
+  return [content].join("\n");
+};
 
 /***/ }),
 
@@ -385,9 +512,93 @@ throw new Error("Module build failed: Error: ENOENT: no such file or directory, 
 /*!****************************************************************************!*\
   !*** ./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js ***!
   \****************************************************************************/
-/***/ (() => {
+/***/ ((module) => {
 
-throw new Error("Module build failed: Error: ENOENT: no such file or directory, open '/Users/oleksandrshevchenko/Development/hubhealth/wp-content/themes/hubhealth/node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js'");
+"use strict";
+
+
+var stylesInDOM = [];
+function getIndexByIdentifier(identifier) {
+  var result = -1;
+  for (var i = 0; i < stylesInDOM.length; i++) {
+    if (stylesInDOM[i].identifier === identifier) {
+      result = i;
+      break;
+    }
+  }
+  return result;
+}
+function modulesToDom(list, options) {
+  var idCountMap = {};
+  var identifiers = [];
+  for (var i = 0; i < list.length; i++) {
+    var item = list[i];
+    var id = options.base ? item[0] + options.base : item[0];
+    var count = idCountMap[id] || 0;
+    var identifier = "".concat(id, " ").concat(count);
+    idCountMap[id] = count + 1;
+    var indexByIdentifier = getIndexByIdentifier(identifier);
+    var obj = {
+      css: item[1],
+      media: item[2],
+      sourceMap: item[3],
+      supports: item[4],
+      layer: item[5]
+    };
+    if (indexByIdentifier !== -1) {
+      stylesInDOM[indexByIdentifier].references++;
+      stylesInDOM[indexByIdentifier].updater(obj);
+    } else {
+      var updater = addElementStyle(obj, options);
+      options.byIndex = i;
+      stylesInDOM.splice(i, 0, {
+        identifier: identifier,
+        updater: updater,
+        references: 1
+      });
+    }
+    identifiers.push(identifier);
+  }
+  return identifiers;
+}
+function addElementStyle(obj, options) {
+  var api = options.domAPI(options);
+  api.update(obj);
+  var updater = function updater(newObj) {
+    if (newObj) {
+      if (newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap && newObj.supports === obj.supports && newObj.layer === obj.layer) {
+        return;
+      }
+      api.update(obj = newObj);
+    } else {
+      api.remove();
+    }
+  };
+  return updater;
+}
+module.exports = function (list, options) {
+  options = options || {};
+  list = list || [];
+  var lastIdentifiers = modulesToDom(list, options);
+  return function update(newList) {
+    newList = newList || [];
+    for (var i = 0; i < lastIdentifiers.length; i++) {
+      var identifier = lastIdentifiers[i];
+      var index = getIndexByIdentifier(identifier);
+      stylesInDOM[index].references--;
+    }
+    var newLastIdentifiers = modulesToDom(newList, options);
+    for (var _i = 0; _i < lastIdentifiers.length; _i++) {
+      var _identifier = lastIdentifiers[_i];
+      var _index = getIndexByIdentifier(_identifier);
+      if (stylesInDOM[_index].references === 0) {
+        stylesInDOM[_index].updater();
+        stylesInDOM.splice(_index, 1);
+      }
+    }
+    lastIdentifiers = newLastIdentifiers;
+  };
+};
 
 /***/ }),
 
@@ -395,9 +606,43 @@ throw new Error("Module build failed: Error: ENOENT: no such file or directory, 
 /*!********************************************************************!*\
   !*** ./node_modules/style-loader/dist/runtime/insertBySelector.js ***!
   \********************************************************************/
-/***/ (() => {
+/***/ ((module) => {
 
-throw new Error("Module build failed: Error: ENOENT: no such file or directory, open '/Users/oleksandrshevchenko/Development/hubhealth/wp-content/themes/hubhealth/node_modules/style-loader/dist/runtime/insertBySelector.js'");
+"use strict";
+
+
+var memo = {};
+
+/* istanbul ignore next  */
+function getTarget(target) {
+  if (typeof memo[target] === "undefined") {
+    var styleTarget = document.querySelector(target);
+
+    // Special case to return head of iframe instead of iframe itself
+    if (window.HTMLIFrameElement && styleTarget instanceof window.HTMLIFrameElement) {
+      try {
+        // This will throw an exception if access to iframe is blocked
+        // due to cross-origin restrictions
+        styleTarget = styleTarget.contentDocument.head;
+      } catch (e) {
+        // istanbul ignore next
+        styleTarget = null;
+      }
+    }
+    memo[target] = styleTarget;
+  }
+  return memo[target];
+}
+
+/* istanbul ignore next  */
+function insertBySelector(insert, style) {
+  var target = getTarget(insert);
+  if (!target) {
+    throw new Error("Couldn't find a style target. This probably means that the value for the 'insert' parameter is invalid.");
+  }
+  target.appendChild(style);
+}
+module.exports = insertBySelector;
 
 /***/ }),
 
@@ -405,9 +650,19 @@ throw new Error("Module build failed: Error: ENOENT: no such file or directory, 
 /*!**********************************************************************!*\
   !*** ./node_modules/style-loader/dist/runtime/insertStyleElement.js ***!
   \**********************************************************************/
-/***/ (() => {
+/***/ ((module) => {
 
-throw new Error("Module build failed: Error: ENOENT: no such file or directory, open '/Users/oleksandrshevchenko/Development/hubhealth/wp-content/themes/hubhealth/node_modules/style-loader/dist/runtime/insertStyleElement.js'");
+"use strict";
+
+
+/* istanbul ignore next  */
+function insertStyleElement(options) {
+  var element = document.createElement("style");
+  options.setAttributes(element, options.attributes);
+  options.insert(element, options.options);
+  return element;
+}
+module.exports = insertStyleElement;
 
 /***/ }),
 
@@ -415,9 +670,19 @@ throw new Error("Module build failed: Error: ENOENT: no such file or directory, 
 /*!**********************************************************************************!*\
   !*** ./node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js ***!
   \**********************************************************************************/
-/***/ (() => {
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-throw new Error("Module build failed: Error: ENOENT: no such file or directory, open '/Users/oleksandrshevchenko/Development/hubhealth/wp-content/themes/hubhealth/node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js'");
+"use strict";
+
+
+/* istanbul ignore next  */
+function setAttributesWithoutAttributes(styleElement) {
+  var nonce =  true ? __webpack_require__.nc : 0;
+  if (nonce) {
+    styleElement.setAttribute("nonce", nonce);
+  }
+}
+module.exports = setAttributesWithoutAttributes;
 
 /***/ }),
 
@@ -425,9 +690,70 @@ throw new Error("Module build failed: Error: ENOENT: no such file or directory, 
 /*!***************************************************************!*\
   !*** ./node_modules/style-loader/dist/runtime/styleDomAPI.js ***!
   \***************************************************************/
-/***/ (() => {
+/***/ ((module) => {
 
-throw new Error("Module build failed: Error: ENOENT: no such file or directory, open '/Users/oleksandrshevchenko/Development/hubhealth/wp-content/themes/hubhealth/node_modules/style-loader/dist/runtime/styleDomAPI.js'");
+"use strict";
+
+
+/* istanbul ignore next  */
+function apply(styleElement, options, obj) {
+  var css = "";
+  if (obj.supports) {
+    css += "@supports (".concat(obj.supports, ") {");
+  }
+  if (obj.media) {
+    css += "@media ".concat(obj.media, " {");
+  }
+  var needLayer = typeof obj.layer !== "undefined";
+  if (needLayer) {
+    css += "@layer".concat(obj.layer.length > 0 ? " ".concat(obj.layer) : "", " {");
+  }
+  css += obj.css;
+  if (needLayer) {
+    css += "}";
+  }
+  if (obj.media) {
+    css += "}";
+  }
+  if (obj.supports) {
+    css += "}";
+  }
+  var sourceMap = obj.sourceMap;
+  if (sourceMap && typeof btoa !== "undefined") {
+    css += "\n/*# sourceMappingURL=data:application/json;base64,".concat(btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))), " */");
+  }
+
+  // For old IE
+  /* istanbul ignore if  */
+  options.styleTagTransform(css, styleElement, options.options);
+}
+function removeStyleElement(styleElement) {
+  // istanbul ignore if
+  if (styleElement.parentNode === null) {
+    return false;
+  }
+  styleElement.parentNode.removeChild(styleElement);
+}
+
+/* istanbul ignore next  */
+function domAPI(options) {
+  if (typeof document === "undefined") {
+    return {
+      update: function update() {},
+      remove: function remove() {}
+    };
+  }
+  var styleElement = options.insertStyleElement(options);
+  return {
+    update: function update(obj) {
+      apply(styleElement, options, obj);
+    },
+    remove: function remove() {
+      removeStyleElement(styleElement);
+    }
+  };
+}
+module.exports = domAPI;
 
 /***/ }),
 
@@ -435,9 +761,23 @@ throw new Error("Module build failed: Error: ENOENT: no such file or directory, 
 /*!*********************************************************************!*\
   !*** ./node_modules/style-loader/dist/runtime/styleTagTransform.js ***!
   \*********************************************************************/
-/***/ (() => {
+/***/ ((module) => {
 
-throw new Error("Module build failed: Error: ENOENT: no such file or directory, open '/Users/oleksandrshevchenko/Development/hubhealth/wp-content/themes/hubhealth/node_modules/style-loader/dist/runtime/styleTagTransform.js'");
+"use strict";
+
+
+/* istanbul ignore next  */
+function styleTagTransform(css, styleElement) {
+  if (styleElement.styleSheet) {
+    styleElement.styleSheet.cssText = css;
+  } else {
+    while (styleElement.firstChild) {
+      styleElement.removeChild(styleElement.firstChild);
+    }
+    styleElement.appendChild(document.createTextNode(css));
+  }
+}
+module.exports = styleTagTransform;
 
 /***/ }),
 
@@ -5096,6 +5436,47 @@ const cf7 = () => {
 
 /***/ }),
 
+/***/ "./src/js/components/header_mega_menu.js":
+/*!***********************************************!*\
+  !*** ./src/js/components/header_mega_menu.js ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+const header_mega_menu = () => {
+    document.addEventListener('DOMContentLoaded', () => {
+        const mainMenuBlock = document.querySelector('.submenu-block');
+        if (!mainMenuBlock) return;
+
+        const liItems = Array.from(mainMenuBlock.querySelectorAll('li.submenu-l2'));
+
+        if (liItems.length === 0) return;
+
+        liItems.forEach((li, idx) => {
+            if (idx === 0) {
+                li.classList.add('show-menu');
+            } else {
+                li.classList.remove('show-menu');
+            }
+
+            li.addEventListener('click', event => {
+                event.preventDefault();
+                liItems.forEach(item => {
+                    item.classList.toggle('show-menu', item === li);
+                });
+            });
+        });
+    });
+};
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (header_mega_menu);
+
+/***/ }),
+
 /***/ "./src/js/components/index.js":
 /*!************************************!*\
   !*** ./src/js/components/index.js ***!
@@ -5107,14 +5488,78 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   aos: () => (/* reexport safe */ _aos__WEBPACK_IMPORTED_MODULE_0__["default"]),
 /* harmony export */   cf7: () => (/* reexport safe */ _cf7__WEBPACK_IMPORTED_MODULE_2__["default"]),
+/* harmony export */   header_mega_menu: () => (/* reexport safe */ _header_mega_menu__WEBPACK_IMPORTED_MODULE_3__["default"]),
+/* harmony export */   mobileMenu: () => (/* reexport safe */ _mobile_menu__WEBPACK_IMPORTED_MODULE_4__["default"]),
 /* harmony export */   swiper: () => (/* reexport safe */ _swiper__WEBPACK_IMPORTED_MODULE_1__["default"])
 /* harmony export */ });
 /* harmony import */ var _aos__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./aos */ "./src/js/components/aos.js");
 /* harmony import */ var _swiper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./swiper */ "./src/js/components/swiper.js");
 /* harmony import */ var _cf7__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./cf7 */ "./src/js/components/cf7.js");
+/* harmony import */ var _header_mega_menu__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./header_mega_menu */ "./src/js/components/header_mega_menu.js");
+/* harmony import */ var _mobile_menu__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./mobile-menu */ "./src/js/components/mobile-menu.js");
 
 
 
+
+
+
+
+/***/ }),
+
+/***/ "./src/js/components/mobile-menu.js":
+/*!******************************************!*\
+  !*** ./src/js/components/mobile-menu.js ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+const mobileMenu = () => {
+    document.addEventListener('DOMContentLoaded', () => {
+        const headerMenu = document.getElementById('Header');
+        const menuBtn = document.querySelector('.mobile-menu-btn-holder');
+        const menuItems = document.querySelectorAll('.mobile-menu li.has-children > a');
+        const body = document.body;
+
+        if (!headerMenu || !menuBtn || menuItems.length === 0) return;
+
+        menuBtn.addEventListener('click', () => {
+            const isOpen = headerMenu.classList.toggle('show-menu');
+            body.style.overflow = isOpen ? 'hidden' : 'auto';
+            menuBtn.classList.toggle('active', isOpen);
+        });
+
+        menuItems.forEach(link => {
+            link.addEventListener('click', event => {
+                event.preventDefault();
+
+                const parentLi = link.closest('li.has-children');
+                const submenu = parentLi.querySelector('ul');
+
+                menuItems.forEach(otherLink => {
+                    const otherLi = otherLink.closest('li.has-children');
+                    const otherUl = otherLi.querySelector('ul');
+                    if (otherLi !== parentLi) {
+                        otherLi.classList.remove('active');
+                        otherUl.style.height = '0';
+                    }
+                });
+
+                const isCurrentlyActive = parentLi.classList.toggle('active');
+                if (submenu) {
+                    submenu.style.height = isCurrentlyActive
+                        ? `${submenu.scrollHeight}px`
+                        : '0';
+                }
+            });
+        });
+    });
+};
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (mobileMenu);
 
 
 /***/ }),
@@ -5317,6 +5762,11 @@ module.exports = "data:application/font-woff;charset=utf-8;base64, d09GRgABAAAAA
 /******/ 		// no jsonp function
 /******/ 	})();
 /******/ 	
+/******/ 	/* webpack/runtime/nonce */
+/******/ 	(() => {
+/******/ 		__webpack_require__.nc = undefined;
+/******/ 	})();
+/******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
 // This entry needs to be wrapped in an IIFE because it needs to be in strict mode.
@@ -5338,6 +5788,8 @@ const Tbc = {
         (0,_components_index__WEBPACK_IMPORTED_MODULE_0__.aos)();
         (0,_components_index__WEBPACK_IMPORTED_MODULE_0__.swiper)();
         (0,_components_index__WEBPACK_IMPORTED_MODULE_0__.cf7)();
+        (0,_components_index__WEBPACK_IMPORTED_MODULE_0__.header_mega_menu)();
+        (0,_components_index__WEBPACK_IMPORTED_MODULE_0__.mobileMenu)();
     }
 };
 

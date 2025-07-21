@@ -2,6 +2,8 @@ import {
     aos,
     swiper,
     cf7,
+    header_mega_menu,
+    mobileMenu,
 } from './components/index';
 
 
@@ -10,6 +12,8 @@ const Tbc = {
         aos();
         swiper();
         cf7();
+        header_mega_menu();
+        mobileMenu();
     }
 };
 

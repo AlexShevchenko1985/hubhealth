@@ -1,15 +1,22 @@
 //fonts
 
 @font-face {
-	font-family: "Neue Haas Grotesk Text Pro";
-	src: url("../fonts/Neue-Haas-Grotesk-Text-Pro.ttf") format("truetype");
-	font-weight: 500;
+	font-family: "Aspekta";
+	src: url("../fonts/Aspekta-400.ttf") format("truetype");
+	font-weight: 400;
 	font-style: normal;
 }
 
 @font-face {
-	font-family: "Inter";
-	src: url("../fonts/Inter-Regular.ttf") format("truetype");
+	font-family: "Aspekta";
+	src: url("../fonts/Aspekta-450.ttf") format("truetype");
+	font-weight: 450;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: "Poppins";
+	src: url("../fonts/Poppins-Regular.ttf") format("truetype");
 	font-weight: 400;
 	font-style: normal;
 }
